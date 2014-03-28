@@ -5,29 +5,12 @@ def diffImg(t0, t1, t2):
   d2 = cv2.absdiff(t1, t0)
   return cv2.bitwise_and(d1, d2)
 
-img = cv2.imread("/home/teo/musette.jpg")
-grey = cv2.imread("/home/teo/musette.jpg",0)
-
-##Run Threshold on image to make it black and white
-ret, thresh = cv2.threshold(grey,100,200,cv2.THRESH_BINARY)
-
-##Use houghcircles to determine centre of circle
-circles = cv2.HoughCircles(thresh,cv2.cv.CV_HOUGH_GRADIENT,1,75,param1=50,param2=13,minRadius=0,maxRadius=175)
-for i in circles[0,:]:
-    #draw the outer circle
-    cv2.circle(img,(i[0],i[1]),i[2],(0,255,0),2)
-    #draw the centre of the circle
-    cv2.circle(img,(i[0],i[1]),2,(0,0,255),3)
-
-cv2.imshow("matza", img)
-cv2.waitKey(0)
-
-cv2.imshow("thresh", thresh)
-cv2.waitKey(0)
-
+def drawObjectFrame(img, width, height):
+  cv2.rectangle(img, (100,100),(200,200),(255,0,0),3)
 
 cam = cv2.VideoCapture(0)
 s, img = cam.read()
+print img.width
 
 winName = "Movement Indicator"
 cv2.namedWindow(winName, cv2.CV_WINDOW_AUTOSIZE)
@@ -38,15 +21,16 @@ t = cv2.cvtColor(cam.read()[1], cv2.COLOR_RGB2GRAY)
 t_plus = cv2.cvtColor(cam.read()[1], cv2.COLOR_RGB2GRAY)
 
 while s:
-  cv2.imshow( winName,img )
-  s, img = cam.read()
-
-  #cv2.imshow( winName, diffImg(t_minus, t, t_plus) )
+  #cv2.imshow( winName,img )
+  #s, img = cam.read()
+  img = diffImg(t_minus, t, t_plus)
+  drawObjectFrame(img,10,10)
+  cv2.imshow( winName, img )
 
   # Read next image
-  #t_minus = t
-  #t = t_plus
-  #t_plus = cv2.cvtColor(cam.read()[1], cv2.COLOR_RGB2GRAY)
+  t_minus = t
+  t = t_plus
+  t_plus = cv2.cvtColor(cam.read()[1], cv2.COLOR_RGB2GRAY)
 
   key = cv2.waitKey(10)
   if key == 27:
